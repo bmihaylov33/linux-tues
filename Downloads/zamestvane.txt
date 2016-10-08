@@ -1,0 +1,50 @@
+#include <unistd.h>
+#include <stdlib.h>
+#include <fcntl.h>
+
+int lines_in_file (char *filename) {
+	int filedesc = open(filename, O_RDONLY);
+	int n;
+	char buff;
+	int lines = 0;
+
+	if (filedesc < 0) {
+		return -1;
+	}
+
+	while ((n = read(filedesc, &buff, 1)) != 0) {
+		if (buff == '\n') {
+			lines++;
+		}
+	}
+
+	close(filedesc);
+	return lines;
+}
+
+
+int main (int argc, char *argv[]) {
+	char *a = argv[1];
+	char *b = argv[2];
+
+	char filename[] = "zamestvane.c";
+	int filedesc = open(filename, O_RDWR);
+	int curr_line = 0;
+	int end_line = lines_in_file(&filename[0]);
+	char buff;
+	int n;
+
+	while ((n = read(filedesc, &buff, 1)) != 0) {
+		if (buff == *a) {
+			buff = *b;
+		}
+		if (buff == '\n') {
+			curr_line++;
+		}
+		if (curr_line <= end_line) {
+			write(STDOUT_FILENO, &buff, 1);
+		}
+	}
+	close(filedesc);
+	return 0;
+}

@@ -1,0 +1,31 @@
+#include <stddef.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+
+int main(int argc, char const *argv[]) {
+	const int count = atoi(argv[1]);
+	const char *program_path = argv[2];
+
+	pid_t processes[count];
+	int status;
+	int i;
+	for (i = 0; i < count; ++i) {
+		processes[i] = fork();
+		if (processes[i] < 0) {
+			status = -1;
+			printf("Unsuccessful fork...\n");
+		}
+		else if (processes[i] == 0)
+			execl(program_path, program_path, NULL);
+		else {
+			if (waitpid (processes[i], &status ,0) != processes[i]) {
+				status = -1;
+			}
+			printf ("Child process finished %d ...\n",status);
+		}
+	}
+	return 0;
+}
